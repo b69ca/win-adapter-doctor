@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "tool": "win-adapter-doctor",
+  "collectedAtUtc": "2026-10-27T12:00:00Z",
+  "platform": "Synthetic Windows evidence; no personal data",
+  "evidence": {
+    "filter": "",
+    "adapters": [
+      {
+        "id": "fixture-interface",
+        "name": "Ethernet",
+        "description": "Synthetic example adapter",
+        "type": "Ethernet",
+        "status": "Up",
+        "addresses": [
+          "169.254.2.3",
+          "fe80::1234%4"
+        ],
+        "gateways": [],
+        "dnsServers": [],
+        "configurationAvailable": true,
+        "countersAvailable": true,
+        "mtu": 1500,
+        "bytesReceived": 1000,
+        "bytesSent": 2000,
+        "incomingErrors": 1,
+        "outgoingErrors": 0
+      }
+    ]
+  },
+  "issues": []
+}
