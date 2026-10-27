@@ -15,6 +15,7 @@ public static class Tool
         if (o.Has("--adapter") && (string.IsNullOrWhiteSpace(o.Get("--adapter")) || o.Get("--adapter").Length > 256))
             throw new ArgumentException("--adapter must contain 1–256 nonblank characters.");
     }
+    public static int? NormalizeMtu(int? value) => value > 0 ? value : null;
     public static bool IsUsable(string text)
     {
         if (!IPAddress.TryParse(text, out var ip) || IPAddress.IsLoopback(ip) || ip.Equals(IPAddress.Any) || ip.Equals(IPAddress.IPv6Any)) return false;
@@ -43,7 +44,7 @@ public static class Tool
                 row["gateways"] = J.Array(ip.GatewayAddresses.Select(a => a.Address.ToString()));
                 row["dnsServers"] = J.Array(ip.DnsAddresses.Select(a => a.ToString()));
                 row["configurationAvailable"] = true;
-                row["mtu"] = ip.GetIPv4Properties()?.Mtu ?? ip.GetIPv6Properties()?.Mtu;
+                row["mtu"] = NormalizeMtu(ip.GetIPv4Properties()?.Mtu ?? ip.GetIPv6Properties()?.Mtu);
             }
             catch (Exception ex) when (ex is NetworkInformationException or NotSupportedException)
             {
@@ -75,7 +76,7 @@ public static class Tool
                 if (J.Strings(row, key).Any(s => !IPAddress.TryParse(s, out _))) throw new ArgumentException($"Invalid IP in '{key}'.");
             }
             V.Bool(row, "configurationAvailable"); V.Bool(row, "countersAvailable");
-            V.Real(row, "mtu", 0, int.MaxValue, true);
+            V.Real(row, "mtu", 1, int.MaxValue, true);
             foreach (var key in new[] { "bytesReceived", "bytesSent", "incomingErrors", "outgoingErrors" }) V.Real(row, key, 0, long.MaxValue, !J.Bool(row, "countersAvailable"));
             if (!J.Bool(row, "configurationAvailable") && new[] { "addresses", "gateways", "dnsServers" }.Any(k => J.Strings(row, k).Any()))
                 throw new ArgumentException("Unavailable configuration must not contain addresses.");
