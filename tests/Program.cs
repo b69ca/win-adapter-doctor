@@ -36,6 +36,12 @@ Check("unavailable evidence is not interpreted as empty configuration", () => { 
 Check("malformed IP and typed counters are rejected", () => { var e=Evidence(); e["adapters"]![0]!["dnsServers"]=new JsonArray("bad ip"); Reject(()=>Tool.ValidateEvidence(e)); e=Evidence(); e["adapters"]![0]!["incomingErrors"]="unknown"; Reject(()=>Tool.ValidateEvidence(e)); });
 Check("blank and oversized filters rejected", () => { foreach(var f in new[]{" ",new string('a',257)}) Reject(()=>Tool.ValidateOptions(Options.Parse(["--adapter",f],Tool.ValueOptions,Tool.Flags))); });
 
+Check("nonpositive Windows MTU sentinels remain unavailable", () => {
+    Assert(Tool.NormalizeMtu(-1) is null && Tool.NormalizeMtu(0) is null && Tool.NormalizeMtu(null) is null, "unavailable sentinel");
+    Assert(Tool.NormalizeMtu(1500) == 1500 && Tool.NormalizeMtu(int.MaxValue) == int.MaxValue, "valid MTU");
+    var e = Evidence(); e["adapters"]![0]!["mtu"] = Tool.NormalizeMtu(-1); Tool.ValidateEvidence(e);
+    e["adapters"]![0]!["mtu"] = -1; Reject(() => Tool.ValidateEvidence(e));
+});
 var capture = new StringWriter(); var oldOut = Console.Out; var oldErr = Console.Error;
 try {
     Console.SetOut(capture); Console.SetError(capture);
